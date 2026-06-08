@@ -1,17 +1,27 @@
+<div align="center">
+
+<img src="public/icons.png" alt="Kanzen" width="120" height="120" />
+
 # Kanzen
 
 **From shell to main.**
 
-A terminal-first git workspace for Windows. Kanzen pairs a **real PowerShell terminal** with a **real git UI** in one fast desktop app — run commands in the embedded PTY, then stage, diff, commit, push, and switch branches from the GUI against the same repository.
+A terminal-first git workspace for Windows that pairs a **real PowerShell terminal** with a **real git UI** in one fast, focused window.
 
-Built with Tauri 2 (Rust), React 19, TypeScript, Vite, and xterm.js.
+[![Release](https://img.shields.io/github/v/release/KanzeroG/Kanzen?label=release&color=8b5cf6)](https://github.com/KanzeroG/Kanzen/releases)
+![Platform](https://img.shields.io/badge/platform-Windows-0078D6)
+![Built with](https://img.shields.io/badge/built%20with-Tauri%202-24C8DB)
+
+<img src="public/first.gif" alt="Kanzen in action" width="820" />
+
+</div>
 
 ---
 
 ## Features
 
 - **Real PTY terminal** — a genuine PowerShell session (prefers `pwsh`, falls back to Windows PowerShell) running in the chosen repo. Multiple sessions, tabs, and split panes.
-- **Real git** — Changes view and cockpit run actual `git`: status, per-file diff, stage/unstage, commit, push, and branch switching. No mocks.
+- **Real git** — Changes view and cockpit run actual `git`: status, per-file diff, stage/unstage, commit, push, pull, fetch, and branch switching. No mocks.
 - **Folder picker** — open any git repository; it drives both the git views and the terminal's working directory.
 - **Recent repositories** — quickly reopen folders you've worked in; the last one reopens on launch.
 - **Settings** — terminal font size and cursor blink, applied live and persisted.
@@ -24,7 +34,7 @@ Built with Tauri 2 (Rust), React 19, TypeScript, Vite, and xterm.js.
 - **Tauri 2** — Windows desktop host (Rust + WebView2)
 - **React 19** + **TypeScript** + **Vite 8**
 - **Tailwind CSS v4** + pure-CSS structural layout
-- **xterm.js** with a native PTY backend (`portable-pty`)
+- **xterm.js** with a native PTY backend (`portable-pty`), streamed over a Tauri `Channel`
 - **Zustand** for state, **Lucide** icons, **Sonner** toasts
 - **tauri-plugin-dialog** for the native folder picker
 
@@ -69,7 +79,7 @@ The standalone executable is at `src-tauri/target/release/kanzen.exe`.
 
 1. **Open a repository** — click the folder button (top-left of the cockpit bar) and pick any git repo. The terminal opens there and the cockpit fills with the real branch and ahead/behind counts. Your most recent repo reopens automatically next launch.
 2. **Terminal** — run anything you'd run in PowerShell: `git`, `gh`, `npm`, build scripts. Use tabs and Split for parallel sessions.
-3. **Changes** — see real modified/untracked files; click one to view its `git diff`. Stage/unstage individually or in bulk, write a commit message, **Commit**, then **Push**.
+3. **Changes** — see real modified/untracked files; click one to view its `git diff`. Stage/unstage individually or in bulk, write a commit message, **Commit**, then **Push**. Fetch and Pull live in the cockpit.
 4. **Branches** — the cockpit branch dropdown lists real branches; selecting one runs `git checkout`.
 5. **Settings** — adjust terminal font size / cursor blink, manage recent repositories, and read the changelog.
 
@@ -93,8 +103,8 @@ Kanzen/
 ├── src-tauri/                  # Rust / Tauri host
 │   ├── src/
 │   │   ├── main.rs             # App setup, plugin + command registration
-│   │   ├── pty.rs              # Native PTY: spawn/write/resize/kill, streams output as events
-│   │   └── git.rs              # git_* commands + folder picker (pick_folder)
+│   │   ├── pty.rs              # Native PTY: spawn/write/resize/kill, streams output over a Channel
+│   │   └── git.rs              # git_* commands + folder picker + confirm dialog
 │   ├── capabilities/default.json
 │   ├── tauri.conf.json         # productName, decorations:false, window config
 │   └── Cargo.toml
@@ -106,9 +116,9 @@ Kanzen/
 │   │   └── utils.ts
 │   ├── components/
 │   │   ├── CustomTitleBar.tsx  # Custom window chrome (min/max/close, drag region)
-│   │   ├── CockpitBar.tsx      # Repo / branch / ahead-behind / open-folder / refresh
+│   │   ├── CockpitBar.tsx      # Repo / branch / ahead-behind / open-folder / fetch / pull
 │   │   ├── Sidebar.tsx         # Terminal · Changes nav + Settings button
-│   │   ├── KanzenTerminal.tsx  # xterm + PTY bridge (Tauri invoke/events)
+│   │   ├── KanzenTerminal.tsx  # xterm + PTY bridge (Tauri Channel + invoke)
 │   │   ├── FileRow.tsx, DiffViewer.tsx
 │   │   └── ui/ (Button, Badge)
 │   ├── views/
