@@ -1,0 +1,25 @@
+[package]
+name = "kanzen"
+version = "0.2.0"
+description = "Kanzen — From shell to main. Windows terminal workspace."
+authors = ["Kanzen"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+portable-pty = "0.9"
+uuid = { version = "1", features = ["v4"] }
+parking_lot = "0.12"
+tauri-plugin-dialog = "2"
+
+[features]
+# this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.
+# DO NOT REMOVE!!
+custom-protocol = ["tauri/custom-protocol"]
