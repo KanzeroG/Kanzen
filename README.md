@@ -2,162 +2,130 @@
 
 **From shell to main.**
 
-A modern Windows desktop terminal workspace built with Tauri, React, TypeScript, Vite, Tailwind CSS, and xterm.js.
+A terminal-first git workspace for Windows. Kanzen pairs a **real PowerShell terminal** with a **real git UI** in one fast desktop app — run commands in the embedded PTY, then stage, diff, commit, push, and switch branches from the GUI against the same repository.
 
-Core workflow: **Terminal → Changes → Commit → Push → PR → CI → Merge**
+Built with Tauri 2 (Rust), React 19, TypeScript, Vite, and xterm.js.
 
-> First version uses rich, cohesive mocks so you can experience the complete flow instantly. No real git or GitHub integration yet.
+---
+
+## Features
+
+- **Real PTY terminal** — a genuine PowerShell session (prefers `pwsh`, falls back to Windows PowerShell) running in the chosen repo. Multiple sessions, tabs, and split panes.
+- **Real git** — Changes view and cockpit run actual `git`: status, per-file diff, stage/unstage, commit, push, and branch switching. No mocks.
+- **Folder picker** — open any git repository; it drives both the git views and the terminal's working directory.
+- **Recent repositories** — quickly reopen folders you've worked in; the last one reopens on launch.
+- **Settings** — terminal font size and cursor blink, applied live and persisted.
+- **In-app changelog** ("What's New") and About panel.
+
+> Pull-request work is intentionally done with `gh`/`git` directly in the real terminal — no separate GitHub integration to keep out of sync.
 
 ## Tech
 
-- Tauri 2 (Windows desktop)
-- React 19 + TypeScript + Vite
-- Tailwind CSS v4
-- xterm.js (styled interactive PowerShell mock)
-- Zustand (shared workspace state)
-- Lucide icons + Sonner toasts
+- **Tauri 2** — Windows desktop host (Rust + WebView2)
+- **React 19** + **TypeScript** + **Vite 8**
+- **Tailwind CSS v4** + pure-CSS structural layout
+- **xterm.js** with a native PTY backend (`portable-pty`)
+- **Zustand** for state, **Lucide** icons, **Sonner** toasts
+- **tauri-plugin-dialog** for the native folder picker
 
-## Run the app
+---
 
-**Prerequisites (one time on Windows):**
-- Node.js 20+
-- Rust (rustup)
-- Visual Studio C++ Build Tools ("Desktop development with C++")
+## Install & run
+
+### Prerequisites (one-time, Windows)
+
+- [Node.js](https://nodejs.org/) 20+
+- [Rust](https://rustup.rs/) (via `rustup`)
+- **Visual Studio C++ Build Tools** — "Desktop development with C++" workload
+- **WebView2 Runtime** — preinstalled on Windows 11; [download](https://developer.microsoft.com/microsoft-edge/webview2/) if missing
+- **git** on your `PATH` (required at runtime — Kanzen shells out to it)
+
+### Development
 
 ```powershell
 cd $env:USERPROFILE\Documents\Kanzen
-npm install          # if you haven't
+npm install
 npm run tauri dev
 ```
 
-The first run will compile the Rust backend (can take several minutes). Subsequent runs are fast.
+The first run compiles the Rust backend (a few minutes). Subsequent runs are fast and support hot-reload for the frontend.
 
-**Note on icons (Windows dev only):**  
-If `tauri dev` fails with an icon/RC2175 error, run the official icon generator once you have a 256px PNG (or use the placeholder we left in `src-tauri/icons`). This is a standard one-time step for Tauri Windows apps.
+### Build a release (installer)
 
-## Keyboard
+```powershell
+npm run tauri build
+```
 
-- Ctrl+1 → Terminal
-- Ctrl+2 → Changes
-- Ctrl+3 → Pull Requests
-- Ctrl+4 → Settings
-- Ctrl+T (while in Terminal) → New session
+This produces optimized bundles under `src-tauri/target/release/bundle/`:
 
-All shortcuts are Ctrl (Windows), never Command.
+- `msi/Kanzen_<version>_x64_en-US.msi` (Windows Installer)
+- `nsis/Kanzen_<version>_x64-setup.exe` (NSIS setup)
 
-## What you can try in v0.1
+The standalone executable is at `src-tauri/target/release/kanzen.exe`.
 
-1. Terminal page
-   - Multiple sessions, close, Split, Search (xterm addon)
-   - Type `git status`, `git add .`, `git commit -m "..."`, `git push`, `clear`, `ls`
-   - These mutate the shared mock git state → watch the Cockpit and Changes update live.
+---
 
-2. Changes page
-   - Stage / Unstage / Discard per file or bulk
-   - Click a file → see mock diff on the right
-   - Write a commit message + Commit
-   - Push button
+## Usage
 
-3. Pull Requests
-   - See current branch PR, CI checks (mix of success/pending), conversation timeline
-   - "Merge pull request" with confirmation modal → state updates everywhere
+1. **Open a repository** — click the folder button (top-left of the cockpit bar) and pick any git repo. The terminal opens there and the cockpit fills with the real branch and ahead/behind counts. Your most recent repo reopens automatically next launch.
+2. **Terminal** — run anything you'd run in PowerShell: `git`, `gh`, `npm`, build scripts. Use tabs and Split for parallel sessions.
+3. **Changes** — see real modified/untracked files; click one to view its `git diff`. Stage/unstage individually or in bulk, write a commit message, **Commit**, then **Push**.
+4. **Branches** — the cockpit branch dropdown lists real branches; selecting one runs `git checkout`.
+5. **Settings** — adjust terminal font size / cursor blink, manage recent repositories, and read the changelog.
 
-4. Settings
-   - Fake GitHub connect/disconnect
-   - Shell placeholders (PowerShell is the active mock)
-   - Security note
+### Keyboard
 
-5. Cockpit (always visible)
-   - Repo, branch (clickable switcher), changes count, ahead/behind, PR status, CI status
-   - Live sync with every action
+| Shortcut | Action |
+|---|---|
+| `Ctrl+1` | Terminal |
+| `Ctrl+2` | Changes |
+| `Ctrl+,` | Settings |
+| `Ctrl+T` | New terminal session (in Terminal) |
 
-## Project structure (key paths)
+All shortcuts use Ctrl (Windows-style), never Command.
+
+---
+
+## Project structure
 
 ```
 Kanzen/
-├── src-tauri/                 # Rust / Tauri host (minimal for v1)
-│   ├── tauri.conf.json        # productName=Kanzen, decorations:false, window size
+├── src-tauri/                  # Rust / Tauri host
+│   ├── src/
+│   │   ├── main.rs             # App setup, plugin + command registration
+│   │   ├── pty.rs              # Native PTY: spawn/write/resize/kill, streams output as events
+│   │   └── git.rs              # git_* commands + folder picker (pick_folder)
 │   ├── capabilities/default.json
-│   └── src/main.rs
+│   ├── tauri.conf.json         # productName, decorations:false, window config
+│   └── Cargo.toml
 ├── src/
 │   ├── lib/
-│   │   ├── store.ts           # Zustand — single source of truth for the whole workflow
+│   │   ├── store.ts            # Zustand — async git actions + persisted settings
 │   │   ├── types.ts
-│   │   ├── mock.ts            # Seed data + dynamic git status generator + diffs
-│   │   └── utils.ts           # cn()
+│   │   ├── changelog.ts        # APP_VERSION + structured changelog (drives "What's New")
+│   │   └── utils.ts
 │   ├── components/
-│   │   ├── CustomTitleBar.tsx # data-tauri-drag-region + min/max/close via @tauri-apps/api/window
-│   │   ├── CockpitBar.tsx     # Live status pills + branch switcher
-│   │   ├── Sidebar.tsx        # Nav with Ctrl+1-4 wiring
-│   │   ├── KanzenTerminal.tsx # xterm + Fit + Search + PowerShell prompt + command processor that calls store actions
-│   │   ├── ui/ (Button, Badge, Modal)
-│   │   ├── FileRow.tsx
-│   │   └── DiffViewer.tsx
+│   │   ├── CustomTitleBar.tsx  # Custom window chrome (min/max/close, drag region)
+│   │   ├── CockpitBar.tsx      # Repo / branch / ahead-behind / open-folder / refresh
+│   │   ├── Sidebar.tsx         # Terminal · Changes nav + Settings button
+│   │   ├── KanzenTerminal.tsx  # xterm + PTY bridge (Tauri invoke/events)
+│   │   ├── FileRow.tsx, DiffViewer.tsx
+│   │   └── ui/ (Button, Badge)
 │   ├── views/
-│   │   ├── TerminalView.tsx   # Tabs, new, split (grid), search bar
-│   │   ├── ChangesView.tsx    # Staged/unstaged lists + right diff panel + commit composer
-│   │   ├── PullRequestsView.tsx
-│   │   └── SettingsView.tsx
-│   ├── App.tsx                # Root layout + global keyboard + view switcher + <Toaster/>
-│   └── index.css              # Full dark zinc theme + xterm container + scrollbar + component styles
-├── package.json               # "tauri": "tauri" script
-└── vite.config.ts             # Tailwind v4 plugin + Tauri recommended server settings (port 1420)
+│   │   ├── TerminalView.tsx    # Tabs, new session, split panes
+│   │   ├── ChangesView.tsx     # Staged/unstaged lists + diff panel + commit composer
+│   │   └── SettingsView.tsx    # Terminal · Recent repos · What's New · About
+│   ├── App.tsx                 # Layout + shortcuts + view switcher
+│   └── index.css               # Dark theme + structural .kanzen-* layout classes
+├── CHANGELOG.md
+├── package.json
+└── vite.config.ts              # Tailwind v4 plugin + Tauri dev server (127.0.0.1:1420)
 ```
 
-## After building (what was done)
+## Changelog
 
-- Full project from zero using Vite React TS scaffold + official Tauri packages + manual but standard src-tauri layout (because the interactive `create-tauri-app` wizard does not work in non-TTY harnesses).
-- Every single UI element described in the request.
-- Reusable components.
-- Live cross-view state via one Zustand store.
-- xterm.js mock that feels like a real PowerShell session and drives the rest of the app.
-- Dark, rounded, professional Windows developer tool aesthetic.
-- Ctrl shortcuts only.
-- Mock data only (as required).
+See [CHANGELOG.md](CHANGELOG.md). Current version: **0.2.0**.
 
-The app is ready for `npm run tauri dev` (see note about icons above if you hit the Windows resource step on first setup).
+## License
 
-Enjoy Kanzen.
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Personal project — all rights reserved unless a license file is added.
