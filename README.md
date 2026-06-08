@@ -124,8 +124,4 @@ Kanzen/
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md). Current version: **0.2.0**.
-
-## License
-
-Personal project — all rights reserved unless a license file is added.
+See [CHANGELOG.md](CHANGELOG.md). Current version: **0.3.0**.

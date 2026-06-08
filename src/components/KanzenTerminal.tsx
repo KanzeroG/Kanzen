@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Terminal } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import '@xterm/xterm/css/xterm.css';
-import { invoke } from '@tauri-apps/api/core';
+import { invoke, Channel } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { useGitStore } from '../lib/store';
 
@@ -58,7 +58,6 @@ export function KanzenTerminal({ sessionId }: Props) {
     termRef.current = term;
     fitRef.current = fit;
 
-    let dataUnlisten: (() => void) | null = null;
     let exitUnlisten: (() => void) | null = null;
 
     const startPty = async () => {
@@ -69,18 +68,19 @@ export function KanzenTerminal({ sessionId }: Props) {
         const cols = term.cols || 80;
         const rows = term.rows || 24;
 
+        // Low-latency streaming channel for PTY output (faster than events).
+        const onData = new Channel<string>();
+        onData.onmessage = (chunk) => term.write(chunk);
+
         try {
           const id = await invoke<string>('pty_spawn', {
             id: sessionId,
             cols,
             rows,
             cwd: useGitStore.getState().repoPath,
+            onData,
           });
           ptyIdRef.current = id;
-
-          dataUnlisten = await listen<string>(`pty://data/${id}`, (event) => {
-            term.write(event.payload);
-          });
 
           exitUnlisten = await listen<null>(`pty://exit/${id}`, () => {
             term.writeln('\r\n\x1b[33m[process exited]\x1b[0m');
@@ -115,7 +115,6 @@ export function KanzenTerminal({ sessionId }: Props) {
 
     return () => {
       ro.disconnect();
-      dataUnlisten?.();
       exitUnlisten?.();
       if (ptyIdRef.current) {
         invoke('pty_kill', { id: ptyIdRef.current }).catch(() => {});

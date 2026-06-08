@@ -3,6 +3,7 @@ use std::io::{Read, Write};
 use std::sync::Arc;
 use parking_lot::Mutex;
 use portable_pty::{native_pty_system, CommandBuilder, MasterPty, PtySize};
+use tauri::ipc::Channel;
 use tauri::{AppHandle, Emitter, State};
 use uuid::Uuid;
 
@@ -43,6 +44,7 @@ pub fn pty_spawn(
     cols: u16,
     rows: u16,
     cwd: Option<String>,
+    on_data: Channel<String>,
 ) -> Result<String, String> {
     let session_id = id.unwrap_or_else(|| Uuid::new_v4().to_string());
 
@@ -82,13 +84,14 @@ pub fn pty_spawn(
 
     sessions.lock().insert(session_id.clone(), session);
 
-    // Reader thread: stream PTY output to the webview as Tauri events
+    // Reader thread: stream PTY output to the webview over a low-latency IPC
+    // Channel (much faster than the global event bus for high-frequency data).
     let app_r = app.clone();
     let sid_r = session_id.clone();
     let sessions_r = Arc::clone(sessions.inner());
 
     std::thread::spawn(move || {
-        let mut buf = [0u8; 4096];
+        let mut buf = [0u8; 8192];
         let mut incomplete: Vec<u8> = Vec::new();
 
         loop {
@@ -101,14 +104,13 @@ pub fn pty_spawn(
 
                     match std::str::from_utf8(&data) {
                         Ok(s) => {
-                            let _ = app_r.emit(&format!("pty://data/{}", sid_r), s.to_string());
+                            let _ = on_data.send(s.to_string());
                         }
                         Err(e) => {
                             let valid = e.valid_up_to();
                             if valid > 0 {
                                 if let Ok(s) = std::str::from_utf8(&data[..valid]) {
-                                    let _ = app_r
-                                        .emit(&format!("pty://data/{}", sid_r), s.to_string());
+                                    let _ = on_data.send(s.to_string());
                                 }
                             }
                             incomplete = data[valid..].to_vec();

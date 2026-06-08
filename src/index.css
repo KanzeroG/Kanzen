@@ -229,18 +229,19 @@ html, body, #root, .flex, .h-screen, .panel, .cockpit, .sidebar {
   padding: 7px 10px;
   border-radius: 6px;
   cursor: pointer;
-  transition: background 90ms ease, transform 80ms ease;
+  transition: background 90ms ease;
 }
 .file-row:hover {
-  background: #1f1f23;
+  background: rgba(255, 255, 255, 0.035);
 }
 .file-row:active {
-  background: #303036;
-  transform: scale(0.99);
+  background: rgba(255, 255, 255, 0.06);
 }
 .file-row.selected {
-  background: #27272a;
-  outline: 1px solid var(--border);
+  background: rgba(59, 130, 246, 0.10);
+}
+.file-row.selected:hover {
+  background: rgba(59, 130, 246, 0.14);
 }
 .file-row.selected::before {
   content: '';
