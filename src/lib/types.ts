@@ -65,9 +65,11 @@ export type AppActions = {
   stageAll: () => Promise<void>;
   unstageAll: () => Promise<void>;
 
-  // Commit / Push
+  // Commit / Push / Pull / Fetch
   commit: (message: string) => Promise<void>;
   push: () => Promise<void>;
+  pull: () => Promise<void>;
+  fetch: () => Promise<void>;
 
   // Branch
   switchBranch: (branch: string) => Promise<void>;

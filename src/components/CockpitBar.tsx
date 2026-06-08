@@ -1,4 +1,4 @@
-import { GitBranch, ArrowUp, ArrowDown, FolderOpen, RefreshCw } from 'lucide-react';
+import { GitBranch, ArrowUp, ArrowDown, FolderOpen, RefreshCw, ArrowDownToLine, DownloadCloud } from 'lucide-react';
 import { useGitStore } from '../lib/store';
 import { useState } from 'react';
 
@@ -14,6 +14,8 @@ export function CockpitBar() {
     switchBranch,
     openFolder,
     refreshStatus,
+    pull,
+    fetch,
   } = useGitStore();
 
   const [branchOpen, setBranchOpen] = useState(false);
@@ -76,7 +78,13 @@ export function CockpitBar() {
             <ArrowDown size={12} className="text-amber-400 ml-1" /> {behind}
           </div>
 
-          {/* Refresh */}
+          {/* Fetch / Pull / Refresh */}
+          <button onClick={fetch} className="pill hover:bg-zinc-800" title="git fetch --all --prune">
+            <DownloadCloud size={13} /> Fetch
+          </button>
+          <button onClick={pull} className="pill hover:bg-zinc-800" title="git pull">
+            <ArrowDownToLine size={13} /> Pull
+          </button>
           <button onClick={refreshStatus} className="pill hover:bg-zinc-800" title="Refresh status">
             <RefreshCw size={12} />
           </button>

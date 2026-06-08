@@ -38,9 +38,12 @@ fn main() {
       git::git_unstage_all,
       git::git_commit,
       git::git_push,
+      git::git_fetch,
+      git::git_pull,
       git::git_branches,
       git::git_checkout,
       git::pick_folder,
+      git::confirm,
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

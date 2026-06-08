@@ -1,6 +1,6 @@
 use std::process::Command;
 use tauri::AppHandle;
-use tauri_plugin_dialog::DialogExt;
+use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
 
 #[derive(serde::Serialize)]
 pub struct FileChange {
@@ -251,6 +251,36 @@ pub fn git_push(cwd: String) -> Result<String, String> {
     }
 }
 
+/// Run a git command that writes progress to stderr (fetch/pull/push), returning
+/// the combined stdout+stderr on success, or that combined text as the error.
+fn run_git_combined(cwd: &str, args: &[&str], empty_ok: &str) -> Result<String, String> {
+    let output = Command::new("git")
+        .args(args)
+        .current_dir(cwd)
+        .output()
+        .map_err(|e| format!("failed to run git: {e}"))?;
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    let combined = format!("{stdout}{stderr}").trim().to_string();
+
+    if output.status.success() {
+        Ok(if combined.is_empty() { empty_ok.to_string() } else { combined })
+    } else {
+        Err(if combined.is_empty() { format!("git {} failed", args[0]) } else { combined })
+    }
+}
+
+#[tauri::command]
+pub fn git_fetch(cwd: String) -> Result<String, String> {
+    run_git_combined(&cwd, &["fetch", "--all", "--prune"], "Fetched.")
+}
+
+#[tauri::command]
+pub fn git_pull(cwd: String) -> Result<String, String> {
+    run_git_combined(&cwd, &["pull"], "Already up to date.")
+}
+
 #[tauri::command]
 pub fn git_branches(cwd: String) -> Result<Vec<String>, String> {
     let out = run_git(&cwd, &["branch", "--format=%(refname:short)"])?;
@@ -275,4 +305,19 @@ pub async fn pick_folder(app: AppHandle) -> Option<String> {
             let _ = tx.send(f);
         });
     rx.recv().ok().flatten().map(|p| p.to_string())
+}
+
+/// Native confirm dialog for destructive actions. Returns true if the user
+/// chose the destructive (first) button. The button label doubles as the verb.
+#[tauri::command]
+pub async fn confirm(app: AppHandle, message: String, title: String, ok_label: String) -> bool {
+    let (tx, rx) = std::sync::mpsc::channel();
+    app.dialog()
+        .message(message)
+        .title(title)
+        .buttons(MessageDialogButtons::OkCancelCustom(ok_label, "Cancel".into()))
+        .show(move |ok| {
+            let _ = tx.send(ok);
+        });
+    rx.recv().unwrap_or(false)
 }

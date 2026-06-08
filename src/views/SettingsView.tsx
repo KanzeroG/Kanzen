@@ -29,23 +29,17 @@ export function SettingsView() {
 
   return (
     <div className="kanzen-view" style={{ overflowY: 'auto' }}>
-      <div style={{ maxWidth: '720px', width: '100%', margin: '0 auto', padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        <div>
-          <h2 className="text-lg font-semibold mb-1">Settings</h2>
-          <p className="text-xs text-zinc-500">Preferences are saved on this machine.</p>
-        </div>
+      <div style={{ maxWidth: '720px', width: '100%', margin: '0 auto', padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <h2 className="text-lg font-semibold">Settings</h2>
 
         {/* Terminal */}
         <div className="panel p-4">
-          <div className="font-medium mb-3 flex items-center gap-2">
-            <TerminalIcon size={15} className="text-blue-400" /> Terminal
+          <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500 mb-3 flex items-center gap-2">
+            <TerminalIcon size={13} /> Terminal
           </div>
 
           <div className="flex items-center justify-between py-2">
-            <div>
-              <div className="text-sm">Font size</div>
-              <div className="text-xs text-zinc-500">Applied live to all terminals.</div>
-            </div>
+            <span className="text-sm">Font size</span>
             <div className="flex items-center gap-2">
               <Button size="sm" variant="secondary" onClick={() => setTerminalFontSize(terminalFontSize - 1)}>
                 <Minus size={14} />
@@ -58,10 +52,7 @@ export function SettingsView() {
           </div>
 
           <div className="flex items-center justify-between py-2 border-t border-zinc-800">
-            <div>
-              <div className="text-sm">Cursor blink</div>
-              <div className="text-xs text-zinc-500">Blink the terminal cursor.</div>
-            </div>
+            <span className="text-sm">Cursor blink</span>
             <button
               role="switch"
               aria-checked={cursorBlink}
@@ -78,11 +69,11 @@ export function SettingsView() {
 
         {/* Recent repositories */}
         <div className="panel p-4">
-          <div className="font-medium mb-3 flex items-center gap-2">
-            <FolderOpen size={15} className="text-blue-400" /> Recent repositories
+          <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500 mb-3 flex items-center gap-2">
+            <FolderOpen size={13} /> Recent repositories
           </div>
           {recentFolders.length === 0 ? (
-            <p className="text-sm text-zinc-500">No repositories yet. Open a folder from the cockpit bar.</p>
+            <p className="text-sm text-zinc-500">No recent repositories.</p>
           ) : (
             <div className="space-y-1">
               {recentFolders.map((path) => (
@@ -111,7 +102,7 @@ export function SettingsView() {
 
         {/* What's New */}
         <div className="panel p-4">
-          <div className="font-medium mb-3">What's New</div>
+          <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500 mb-3">What's New</div>
           <div className="space-y-5">
             {CHANGELOG.map((entry) => (
               <div key={entry.version}>
@@ -137,14 +128,11 @@ export function SettingsView() {
 
         {/* About */}
         <div className="panel p-4">
-          <div className="font-medium mb-2">About</div>
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-md bg-zinc-800 flex items-center justify-center">
-              <TerminalIcon size={18} className="text-blue-400" />
-            </div>
+            <img src="/icons.png" alt="Kanzen" className="w-10 h-10 rounded-lg ring-1 ring-zinc-700/60" />
             <div>
               <div className="font-semibold">Kanzen <span className="text-xs text-zinc-500 font-normal">v{APP_VERSION}</span></div>
-              <div className="text-xs text-zinc-500">From shell to main. — a terminal-first git workspace for Windows.</div>
+              <div className="text-xs text-zinc-500">From shell to main.</div>
             </div>
           </div>
         </div>

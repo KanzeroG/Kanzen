@@ -199,6 +199,12 @@ export const useGitStore = create<Store>((set, get) => {
   discardFile: async (path: string) => {
     const { repoPath } = get();
     if (!repoPath) return;
+    const ok = await invoke<boolean>('confirm', {
+      message: `Discard changes to ${basename(path)}? This cannot be undone.`,
+      title: 'Discard changes',
+      okLabel: 'Discard',
+    });
+    if (!ok) return;
     try {
       await invoke('git_discard', { cwd: repoPath, path });
       await get().refreshStatus();
@@ -250,6 +256,30 @@ export const useGitStore = create<Store>((set, get) => {
       const result = await invoke<string>('git_push', { cwd: repoPath });
       await get().refreshStatus();
       toast.success(result.split('\n').pop() || 'Pushed');
+    } catch (e) {
+      toast.error(String(e));
+    }
+  },
+
+  pull: async () => {
+    const { repoPath } = get();
+    if (!repoPath) return;
+    try {
+      const result = await invoke<string>('git_pull', { cwd: repoPath });
+      await get().refreshStatus();
+      toast.success(result.split('\n').pop() || 'Pulled');
+    } catch (e) {
+      toast.error(String(e));
+    }
+  },
+
+  fetch: async () => {
+    const { repoPath } = get();
+    if (!repoPath) return;
+    try {
+      const result = await invoke<string>('git_fetch', { cwd: repoPath });
+      await get().refreshStatus();
+      toast.success(result.split('\n').pop() || 'Fetched');
     } catch (e) {
       toast.error(String(e));
     }

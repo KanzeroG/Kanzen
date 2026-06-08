@@ -1,4 +1,4 @@
-export const APP_VERSION = '0.2.0';
+export const APP_VERSION = '0.3.0';
 
 export type ChangeKind = 'added' | 'changed' | 'fixed' | 'removed';
 
@@ -12,6 +12,18 @@ export interface ChangelogEntry {
 // Newest first. This is the single source of truth for the in-app "What's New"
 // panel; keep CHANGELOG.md in sync with it.
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '0.3.0',
+    date: '2026-06-08',
+    title: 'Pull, fetch & polish',
+    changes: [
+      { kind: 'added', text: 'Fetch and Pull buttons in the cockpit bar.' },
+      { kind: 'added', text: 'Confirmation dialog before discarding a file’s changes.' },
+      { kind: 'added', text: 'Kanzen app icon in the sidebar, Settings, and the window/taskbar.' },
+      { kind: 'changed', text: 'Cleaner Settings layout with the explanatory clutter removed.' },
+      { kind: 'changed', text: 'File rows now give press feedback and a clearer selected state.' },
+    ],
+  },
   {
     version: '0.2.0',
     date: '2026-06-08',

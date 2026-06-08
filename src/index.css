@@ -222,19 +222,36 @@ html, body, #root, .flex, .h-screen, .panel, .cockpit, .sidebar {
 
 /* File rows */
 .file-row {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 10px;
+  padding: 7px 10px;
   border-radius: 6px;
   cursor: pointer;
+  transition: background 90ms ease, transform 80ms ease;
 }
 .file-row:hover {
   background: #1f1f23;
 }
+.file-row:active {
+  background: #303036;
+  transform: scale(0.99);
+}
 .file-row.selected {
   background: #27272a;
   outline: 1px solid var(--border);
+}
+.file-row.selected::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  border-radius: 0 2px 2px 0;
+  background: var(--accent);
 }
 
 /* Diff viewer */

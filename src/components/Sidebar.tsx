@@ -15,14 +15,14 @@ const nav = [
 
 export function Sidebar({ currentView, onNavigate }: SidebarProps) {
   return (
-    <div 
-      className="kanzen-sidebar"
-    >
+    <div className="kanzen-sidebar">
       <div className="px-4 py-3">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-md bg-zinc-800 flex items-center justify-center">
-            <Terminal size={16} className="text-blue-400" />
-          </div>
+        <div className="flex items-center gap-2.5">
+          <img
+            src="/icons.png"
+            alt="Kanzen"
+            className="w-8 h-8 rounded-lg ring-1 ring-zinc-700/60"
+          />
           <div>
             <div className="font-semibold tracking-[-0.3px] text-lg leading-none">Kanzen</div>
             <div className="text-[10px] text-zinc-500 -mt-0.5">From shell to main.</div>
@@ -47,14 +47,18 @@ export function Sidebar({ currentView, onNavigate }: SidebarProps) {
         })}
       </div>
 
-      <div className="mt-auto border-t border-zinc-800 pt-1">
+      <div className="mt-auto">
         <div
           onClick={() => onNavigate('settings')}
           className={cn('nav-item', currentView === 'settings' && 'active')}
         >
           <Settings size={16} />
-          <span className="flex-1">Settings</span>
-          <span className="text-[10px] text-zinc-600">v{APP_VERSION}</span>
+          <span>Settings</span>
+        </div>
+
+        <div className="flex items-center gap-2 px-4 py-3 border-t border-zinc-800 mt-1">
+          <img src="/icons.png" alt="" className="w-4 h-4 rounded opacity-80" />
+          <span className="text-[10px] text-zinc-600">Kanzen v{APP_VERSION}</span>
         </div>
       </div>
     </div>

@@ -5,6 +5,17 @@ All notable changes to Kanzen are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] — 2026-06-08
+
+### Added
+- **Fetch** and **Pull** buttons in the cockpit bar (`git fetch --all --prune` / `git pull`).
+- A native **confirmation dialog** before discarding a file's changes.
+- The Kanzen **app icon** in the sidebar, Settings, and the window / taskbar / installer.
+
+### Changed
+- Cleaner **Settings** layout with the explanatory clutter removed.
+- File rows now give a **press response** and a clearer selected state (left accent bar).
+
 ## [0.2.0] — 2026-06-08
 
 ### Added
@@ -31,5 +42,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial workspace shell: custom title bar, cockpit bar, and sidebar navigation.
 - Mock-driven Changes and Pull Requests views to prototype the workflow.
 
+[0.3.0]: https://github.com/
 [0.2.0]: https://github.com/
 [0.1.0]: https://github.com/
