@@ -44,7 +44,9 @@ jobs:
             patchelf
 
       - name: Install frontend dependencies
-        run: npm ci
+        # npm install (not npm ci) to tolerate the npm optional-dependency
+        # lockfile flakiness around native transitive deps (e.g. @emnapi/*).
+        run: npm install
 
       - name: Build and publish release
         uses: tauri-apps/tauri-action@v0
