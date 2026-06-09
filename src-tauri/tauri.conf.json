@@ -46,7 +46,7 @@
       "endpoints": [
         "https://github.com/KanzeroG/Kanzen/releases/latest/download/{{target}}-{{arch}}.{{ext}}.sig"
       ],
-      "pubkey": "YOUR_PUBLIC_KEY_FROM_tauri_signer_generate_HERE"
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJENkMwODM1OUM5QjEyMzUKUldRMUVwdWNOUWhzTFIvaXhJYVUrSW1XS1Urd0lqNjdMak9iZ0JTbkM1VXNRWHhvUWVxYXZ4SngK"
     }
   }
 }
