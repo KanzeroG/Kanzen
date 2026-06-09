@@ -10,14 +10,6 @@ const isTauri =
     (window as any).__TAURI__ !== undefined
   );
 
-let getCurrentWindow: any = null;
-if (isTauri) {
-  // Only import the Tauri API when actually inside the app
-  import('@tauri-apps/api/window').then(mod => {
-    getCurrentWindow = mod.getCurrentWindow;
-  }).catch(() => {});
-}
-
 export function CustomTitleBar() {
   const [isMaximized, setIsMaximized] = useState(false);
   const [winApi, setWinApi] = useState<any>(null);

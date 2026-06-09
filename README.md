@@ -18,6 +18,21 @@ A terminal-first git workspace for Windows that pairs a **real PowerShell termin
 
 ---
 
+## Download
+
+**Latest:** [v0.3.0](https://github.com/KanzeroG/Kanzen/releases/latest)
+
+### Windows (x64)
+
+- **[Kanzen_0.3.0_x64-setup.exe](https://github.com/KanzeroG/Kanzen/releases/download/v0.3.0/Kanzen_0.3.0_x64-setup.exe)** — Recommended NSIS installer
+- [Kanzen_0.3.0_x64_en-US.msi](https://github.com/KanzeroG/Kanzen/releases/download/v0.3.0/Kanzen_0.3.0_x64_en-US.msi) — Windows Installer (MSI)
+
+Older releases and checksums are on the [Releases page](https://github.com/KanzeroG/Kanzen/releases).
+
+> **Note:** Kanzen is currently focused on Windows (real PowerShell + git). Linux and macOS builds are provided experimentally.
+
+---
+
 ## Features
 
 - **Real PTY terminal** — a genuine PowerShell session (prefers `pwsh`, falls back to Windows PowerShell) running in the chosen repo. Multiple sessions, tabs, and split panes.
@@ -42,15 +57,23 @@ A terminal-first git workspace for Windows that pairs a **real PowerShell termin
 
 ## Install & run
 
-### Prerequisites (one-time, Windows)
+### Download & install (recommended for most users)
+
+1. Go to the [latest release](https://github.com/KanzeroG/Kanzen/releases/latest).
+2. Download `Kanzen_..._x64-setup.exe`.
+3. Run the installer and launch Kanzen.
+
+The app will remember your last repository and open it on next launch.
+
+### Development
+
+**Prerequisites (Windows)**
 
 - [Node.js](https://nodejs.org/) 20+
 - [Rust](https://rustup.rs/) (via `rustup`)
 - **Visual Studio C++ Build Tools** — "Desktop development with C++" workload
 - **WebView2 Runtime** — preinstalled on Windows 11; [download](https://developer.microsoft.com/microsoft-edge/webview2/) if missing
-- **git** on your `PATH` (required at runtime — Kanzen shells out to it)
-
-### Development
+- **git** on your `PATH` (required at runtime)
 
 ```powershell
 cd $env:USERPROFILE\Documents\Kanzen
@@ -60,18 +83,20 @@ npm run tauri dev
 
 The first run compiles the Rust backend (a few minutes). Subsequent runs are fast and support hot-reload for the frontend.
 
-### Build a release (installer)
+### Build from source
 
 ```powershell
 npm run tauri build
 ```
 
-This produces optimized bundles under `src-tauri/target/release/bundle/`:
+This produces installers under `src-tauri/target/release/bundle/`:
 
-- `msi/Kanzen_<version>_x64_en-US.msi` (Windows Installer)
-- `nsis/Kanzen_<version>_x64-setup.exe` (NSIS setup)
+- `nsis/Kanzen_<version>_x64-setup.exe`
+- `msi/Kanzen_<version>_x64_en-US.msi`
 
-The standalone executable is at `src-tauri/target/release/kanzen.exe`.
+The raw executable is at `src-tauri/target/release/kanzen.exe`.
+
+Releases are built automatically by GitHub Actions when a new version tag (e.g. `v0.4.0`) is pushed.
 
 ---
 
@@ -106,7 +131,7 @@ Kanzen/
 │   │   ├── pty.rs              # Native PTY: spawn/write/resize/kill, streams output over a Channel
 │   │   └── git.rs              # git_* commands + folder picker + confirm dialog
 │   ├── capabilities/default.json
-│   ├── tauri.conf.json         # productName, decorations:false, window config
+│   ├── tauri.conf.json
 │   └── Cargo.toml
 ├── src/
 │   ├── lib/
@@ -129,9 +154,17 @@ Kanzen/
 │   └── index.css               # Dark theme + structural .kanzen-* layout classes
 ├── CHANGELOG.md
 ├── package.json
-└── vite.config.ts              # Tailwind v4 plugin + Tauri dev server (127.0.0.1:1420)
+└── vite.config.ts
 ```
 
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md). Current version: **0.3.0**.
+
+## Contributing
+
+Issues and pull requests are welcome. If you're hacking on the terminal/PTY or git integration, please test on real repositories.
+
+---
+
+**Made for people who live in the terminal but still want a great git experience.**
