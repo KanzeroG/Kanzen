@@ -1,4 +1,4 @@
-export const APP_VERSION = '0.3.0';
+export const APP_VERSION = '0.3.1';
 
 export type ChangeKind = 'added' | 'changed' | 'fixed' | 'removed';
 
@@ -12,6 +12,15 @@ export interface ChangelogEntry {
 // Newest first. This is the single source of truth for the in-app "What's New"
 // panel; keep CHANGELOG.md in sync with it.
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '0.3.1',
+    date: '2026-06-09',
+    title: 'Auto-updater & signed releases',
+    changes: [
+      { kind: 'added', text: 'Built-in auto-updater with secure signed updates from GitHub Releases.' },
+      { kind: 'added', text: 'Release workflow now signs Windows installers for verified updates.' },
+    ],
+  },
   {
     version: '0.3.0',
     date: '2026-06-08',

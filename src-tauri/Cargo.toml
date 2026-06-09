@@ -1,6 +1,6 @@
 [package]
 name = "kanzen"
-version = "0.3.0"
+version = "0.3.1"
 description = "Kanzen — From shell to main. Windows terminal workspace."
 authors = ["Kanzen"]
 edition = "2021"
