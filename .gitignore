@@ -31,6 +31,9 @@ target/
 # Tauri generated files (schemas are regenerated on build)
 src-tauri/gen/schemas/
 
+# Tauri signing keys (private key must never be committed)
+.tauri/
+
 # Environment / secrets
 .env
 .env.*
