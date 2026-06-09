@@ -39,5 +39,14 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ]
+  },
+  "plugins": {
+    "updater": {
+      "active": true,
+      "endpoints": [
+        "https://github.com/KanzeroG/Kanzen/releases/latest/download/{{target}}-{{arch}}.{{ext}}.sig"
+      ],
+      "pubkey": "YOUR_PUBLIC_KEY_FROM_tauri_signer_generate_HERE"
+    }
   }
 }

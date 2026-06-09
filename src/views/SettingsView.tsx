@@ -1,7 +1,10 @@
-import { Minus, Plus, FolderOpen, X, Terminal as TerminalIcon } from 'lucide-react';
+import { Minus, Plus, FolderOpen, X, Terminal as TerminalIcon, RefreshCw } from 'lucide-react';
+import { useState } from 'react';
 import { useGitStore } from '../lib/store';
 import { Button } from '../components/ui/Button';
 import { CHANGELOG, APP_VERSION, type ChangeKind } from '../lib/changelog';
+import { check } from '@tauri-apps/plugin-updater';
+import { relaunch } from '@tauri-apps/plugin-process';
 
 const kindStyles: Record<ChangeKind, { label: string; cls: string }> = {
   added: { label: 'Added', cls: 'text-emerald-400 bg-emerald-400/10' },
@@ -26,6 +29,64 @@ export function SettingsView() {
     openFolderPath,
     removeRecentFolder,
   } = useGitStore();
+
+  // ---- Auto-updater state ----
+  const [checking, setChecking] = useState(false);
+  const [updateAvailable, setUpdateAvailable] = useState<any>(null);
+  const [installing, setInstalling] = useState(false);
+  const [progress, setProgress] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const checkForUpdate = async () => {
+    setChecking(true);
+    setError(null);
+    setUpdateAvailable(null);
+    setProgress(null);
+
+    try {
+      const update = await check();
+      if (update?.available) {
+        setUpdateAvailable(update);
+      } else {
+        setError('You are on the latest version.');
+      }
+    } catch (e: any) {
+      setError(String(e) || 'Failed to check for updates.');
+    } finally {
+      setChecking(false);
+    }
+  };
+
+  const installUpdate = async () => {
+    if (!updateAvailable) return;
+
+    setInstalling(true);
+    setError(null);
+    setProgress('Starting download...');
+
+    try {
+      await updateAvailable.downloadAndInstall((event: any) => {
+        switch (event.event) {
+          case 'Started':
+            setProgress('Download started');
+            break;
+          case 'Progress':
+            setProgress(`Downloading... ${Math.round((event.data.chunkLength || 0) / 1024)} KB`);
+            break;
+          case 'Finished':
+            setProgress('Download complete. Installing...');
+            break;
+        }
+      });
+
+      setProgress('Update installed. Restarting...');
+      await relaunch();
+    } catch (e: any) {
+      setError(String(e) || 'Failed to install update.');
+      setInstalling(false);
+      setProgress(null);
+    }
+  };
 
   return (
     <div className="kanzen-view" style={{ overflowY: 'auto' }}>
@@ -124,6 +185,47 @@ export function SettingsView() {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Updates */}
+        <div className="panel p-4">
+          <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500 mb-3 flex items-center gap-2">
+            <RefreshCw size={13} /> Updates
+          </div>
+
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <div className="text-sm">Current version: <span className="font-mono text-blue-400">v{APP_VERSION}</span></div>
+              <div className="text-[11px] text-zinc-500">Updates are delivered via GitHub Releases</div>
+            </div>
+            <Button
+              onClick={checkForUpdate}
+              disabled={checking || installing}
+              variant="secondary"
+              size="sm"
+            >
+              {checking ? 'Checking…' : 'Check for updates'}
+            </Button>
+          </div>
+
+          {updateAvailable && (
+            <div className="mt-3 p-3 bg-zinc-900 rounded border border-zinc-800">
+              <div className="text-sm mb-2">
+                New version available: <span className="font-mono text-emerald-400">v{updateAvailable.version}</span>
+              </div>
+              {updateAvailable.notes && (
+                <div className="text-xs text-zinc-400 mb-3 whitespace-pre-wrap max-h-24 overflow-auto">
+                  {updateAvailable.notes}
+                </div>
+              )}
+              <Button onClick={installUpdate} disabled={installing}>
+                {installing ? 'Installing...' : 'Download and install update'}
+              </Button>
+              {progress && <div className="text-xs text-zinc-500 mt-2">{progress}</div>}
+            </div>
+          )}
+
+          {error && <div className="text-xs text-amber-400 mt-2">{error}</div>}
         </div>
 
         {/* About */}

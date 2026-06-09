@@ -14,6 +14,7 @@ fn main() {
 
   tauri::Builder::default()
     .plugin(tauri_plugin_dialog::init())
+    .plugin(tauri_plugin_updater::Builder::new().build())
     .manage(pty_map)
     .setup(|app| {
       if let Some(window) = app.get_webview_window("main") {
