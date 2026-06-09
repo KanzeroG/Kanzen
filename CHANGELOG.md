@@ -5,6 +5,12 @@ All notable changes to Kanzen are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.2] — 2026-06-09
+
+### Fixed
+- **Auto-updater** now points at the `latest.json` manifest (not a signature file) and the build emits the signed updater artifacts, so in-app updates actually install.
+- **Terminal latency** — PTY output now streams over a Tauri `Channel` instead of the global event bus, so typing feels immediate.
+
 ## [0.3.1] — 2026-06-09
 
 ### Added

@@ -1,4 +1,4 @@
-export const APP_VERSION = '0.3.1';
+export const APP_VERSION = '0.3.2';
 
 export type ChangeKind = 'added' | 'changed' | 'fixed' | 'removed';
 
@@ -12,6 +12,15 @@ export interface ChangelogEntry {
 // Newest first. This is the single source of truth for the in-app "What's New"
 // panel; keep CHANGELOG.md in sync with it.
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '0.3.2',
+    date: '2026-06-09',
+    title: 'Update pipeline & terminal speed',
+    changes: [
+      { kind: 'fixed', text: 'Auto-updater now reads the correct update manifest, so in-app updates actually install.' },
+      { kind: 'fixed', text: 'Snappier terminal — output streams over a low-latency channel instead of the event bus.' },
+    ],
+  },
   {
     version: '0.3.1',
     date: '2026-06-09',
